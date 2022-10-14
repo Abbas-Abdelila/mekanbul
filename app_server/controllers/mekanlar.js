@@ -5,8 +5,8 @@ const anaSayfa = function (req, res, next) {
     res.render('anasayfa', { title: 'AnaSayfa'})
 }
 
-const mekanBilgisi=function(req, res) {
-    res.render('mekanBilgisi', {title: 'Mekanlar'});
+const mekanBilgisi=function(req, res,next) {
+    res.render('mekanbilgisi', {title: 'Mekanlar'});
 };
 
 const yorumEkle = function (req, res, next) {
