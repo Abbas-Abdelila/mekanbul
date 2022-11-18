@@ -20,7 +20,7 @@ const yorumGetir = function (req, res) {
             }
             
             else if (hata) {
-                cevapOlustur(res, 404, hata);
+                cevapOlustur(res, 404, {'hata': 'Hata'});
                 return;
             }
 

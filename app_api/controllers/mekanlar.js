@@ -71,7 +71,7 @@ const mekanEkle = function (req, res) {
 
 const mekanGetir = function (req, res) {
     if (req.params && req.params.mekanid) {
-        Mekan.findById(req.params.mekanid).select("ad")
+        Mekan.findById(req.params.mekanid)
         .exec(function (hata, mekan) {
             if (!mekan) {
                 cevapOlustur(res, 404, {"hata":"Boyle bir mekan yok!"});
