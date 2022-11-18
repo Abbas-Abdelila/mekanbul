@@ -48,7 +48,7 @@ const mekanlariListele = async (req, res) => {
             },
         ]);
 
-        const  mekanlar = sonuc.map((mekan) => {
+        const mekanlar = sonuc.map((mekan) => {
             return {
                 mesafe: cevrimler.kilometre2Radyan(mekan.mesafe),
                 ad: mekan.ad,
@@ -63,12 +63,6 @@ const mekanlariListele = async (req, res) => {
     } catch(e) {
         cevapOlustur(res, 404, e);
     };
-
-
-
-
-
-
 };
 
 const mekanEkle = function (req, res) {
