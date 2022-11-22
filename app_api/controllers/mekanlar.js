@@ -25,15 +25,16 @@ const mekanlariListele = async (req, res) => {
     var enlem = parseFloat(req.query.enlem);
     var koordinat = {
         type: "Point",
-        coordinates: [enlem, boylam,]
+        coordinates: [enlem, boylam],
     };
     var geoOptions = {
         distanceField: "mesafe",
-        spherical: true
+        spherical: true,
     };
-
-    if ((!enlem && boylam !== 0) || (enlem !==0 && !boylam)) {
-        cevapOlustur(res, 404, {'hata': 'Enlem yada boylam girilmedi bunlar zorunlu parametre'});
+    if ((!enlem && boylam !== 0) || (!enlem && boylam !== 0)) {
+        cevapOlustur(res, 404, {
+            "hata": "enlem ve boylam zorunlu parametreler",
+        });
         return;
     }
 
@@ -43,26 +44,24 @@ const mekanlariListele = async (req, res) => {
                 $geoNear: {
                     near: koordinat,
                     ...geoOptions,
-                },
-
+                }
             },
-        ]);
-
+        ])
         const mekanlar = sonuc.map((mekan) => {
-            return {
+            return{
                 mesafe: cevrimler.kilometre2Radyan(mekan.mesafe),
                 ad: mekan.ad,
                 adres: mekan.adres,
                 puan: mekan.puan,
                 imkanlar: mekan.imkanlar,
-                _id: mekan._id
+                _id: mekan._id,
             };
         });
 
         cevapOlustur(res, 200, mekanlar);
-    } catch(e) {
+    } catch (e) {
         cevapOlustur(res, 404, e);
-    };
+    }
 };
 
 const mekanEkle = function (req, res) {
@@ -71,24 +70,22 @@ const mekanEkle = function (req, res) {
 
 const mekanGetir = function (req, res) {
     if (req.params && req.params.mekanid) {
-        Mekan.findById(req.params.mekanid)
-        .exec(function (hata, mekan) {
+        Mekan.findById(req.params.mekanid).exec(function (hata, mekan) {
             if (!mekan) {
-                cevapOlustur(res, 404, {"hata":"Boyle bir mekan yok!"});
+                cevapOlustur(res, 404, { "hata": "Böyle bir mekan yok!" });
             }
             else if (hata) {
-                cevapOlustur(res, 404, {'hata': hata});
+                cevapOlustur(res, 404, { "hata": hata });
             }
             else {
                 cevapOlustur(res, 200, mekan);
             }
-        });        
+        });
     }
     else {
-        cevapOlustur(res, 404, {"hata": "Istekte mekanid yoktur"});
+        cevapOlustur(res, 404, { "hata": "İstekte mekan yok!" });
     }
-};
-
+}
 const mekanGuncelle = function (req, res) {
     cevapOlustur(res, 200, {"durum": "basarili"});
 }
@@ -98,9 +95,9 @@ const mekanSil = function (req, res) {
 }
 
 module.exports = {
+    mekanlariListele,
     mekanEkle,
     mekanGetir,
-    mekanGuncelle,
     mekanSil,
-    mekanlariListele
-}
+    mekanGuncelle
+};
