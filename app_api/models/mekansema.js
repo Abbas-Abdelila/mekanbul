@@ -22,4 +22,5 @@ koordinat:{type:[Number],index:'2dsphere'},
 saatler:[saatSema],
 yorumlar:[yorumSema]
  }); 
- mongoose.model("mekan",mekanSema,"mekanlar");
+ 
+mongoose.model("mekan",mekanSema,"mekanlar");
