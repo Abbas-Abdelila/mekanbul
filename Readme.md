@@ -10,3 +10,4 @@
 ![Mekan_id ve yorum_id ile yoruma ulasim](/resimler/yorum_by_mekan_id.PNG)
 
 ![API TESTLER](/resimler/test%20resim.PNG)
+![API TEST CLI](resimler/test%20cli.png)
