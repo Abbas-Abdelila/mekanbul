@@ -8,3 +8,5 @@
 
 [3.Bir Mekan'a yapilan yoruma mekan_id ile yorum_id ile ulasma](https://mekanbul5.abbas-abdelila.repl.co/api/mekanlar/63779ca5b4f144ddeb684e41/yorumlar/63779cbf34974bbb5c685f41)
 ![Mekan_id ve yorum_id ile yoruma ulasim](/resimler/yorum_by_mekan_id.PNG)
+
+![API TESTLER](/resimler/test%20resim.PNG)
