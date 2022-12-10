@@ -1,7 +1,10 @@
 const axios=require("axios");
+var express = require('express');
+var router = express.Router();
+
 var apiSecenekleri={
-    // sunucu:"http://0.0.0.0:3000",
-    sunucu:"https://mekanbul5.abbas-abdelila.repl.co/",
+    sunucu:"http://localhost:3000/?enlem=37.8&boylam=30.5",
+    // sunucu:"https://mekanbul8.abbas-abdelila.repl.co",
     apiYolu:"/api/mekanlar/"
 }
 var mesafeyiFormatla=function(mesafe){
@@ -15,8 +18,7 @@ var mesafeyiFormatla=function(mesafe){
     }
      return yeniMesafe+birim; 
 }
-var express = require('express');
-var router = express.Router();
+
 var anaSayfaOlustur=function(res,mekanListesi){
     var mesaj;
     if(!(mekanListesi instanceof Array)){
