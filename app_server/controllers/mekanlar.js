@@ -1,98 +1,128 @@
+const axios=require("axios");
+var apiSecenekleri={
+    // sunucu:"http://0.0.0.0:3000",
+    sunucu:"https://mekanbul5.abbas-abdelila.repl.co/",
+    apiYolu:"/api/mekanlar/"
+}
+var mesafeyiFormatla=function(mesafe){
+    var yeniMesafe,birim;
+    if(mesafe>1){
+        yeniMesafe=parseFloat(mesafe).toFixed(1);
+        birim=" km";
+    }else{
+        yeniMesafe=parseInt(mesafe*1000,10); 
+        birim=" m";
+    }
+     return yeniMesafe+birim; 
+}
 var express = require('express');
 var router = express.Router();
-
-const anaSayfa = function(req, res) {
-    res.render('anasayfa', {
-        "baslik": "Anasayfa",
-        "sayfaBaslik": {
-            "siteAd": "MekanBul",
-            "slogan": "Civardaki Mekanlari Kesfet",
+var anaSayfaOlustur=function(res,mekanListesi){
+    var mesaj;
+    if(!(mekanListesi instanceof Array)){
+        mesaj="API HATASI: Bir şeyler ters gitti.";
+        mekanListesi=[];
+    }else{
+        if(!mekanListesi.length){
+            mesaj="Civarda herhangi bir mekan yok."
+        }
+    }
+    res.render("anasayfa",{
+        "baslik":"Anasayfa",
+        "sayfaBaslik":{
+            "siteAd":"Mekanbul",
+            "slogan":"Mekanları Keşfet"
         },
-        "mekanlar": [
-            {
-                "ad": "Starbucks",
-                "adres": "Centrum Garden AVM",
-                "puan": "4",
-                "imkanlar": ["Dunya Kahveleri", "kekler", "Pastalar"],
-                "mesafe": "10km"
-            },
-            
-            {
-                "ad": "Gloria Jeans",
-                "adres": "SDU Dogu Kampusu",
-                "puan": "3",
-                "imkanlar": ["Kahve", "Cay", "Pasta"],
-                "mesafe":"5km"
-            }
-        ]
+        "mekanlar":mekanListesi,
+        "mesaj":mesaj
     });
 }
 
-const mekanBilgisi=function(req, res,next) {
-    res.render('mekanbilgisi', {
-        "baslik": "Mekan Bilgisi",
-        "mekanBaslik": "Starbucks",
-        "mekanDetay": {
-            "ad" : "StarBucks",
-            "puan": "3",
-            "imkanlar": ["Dunya Kahveleri", "Kekler", "Pastalar"],
-            "koordinatlar": {
-                "enlem": "37.7",
-                "boylam":"30.5"
-            },
-            "adres": "Centrum Garden AVM",
-            "saatler" : [
-                {
-                    "gunler": "Pazartesi-Cuma",
-                    "acilis": "9:00",
-                    "kapanis": "23:00",
-                    "kapali": false
-                },
-
-                {
-                    "gunler": "Cumartesi-Pazar",
-                    "acilis": "8:00",
-                    "kapanis": "22:00",
-                    "kapali": false
-                }
-            ],
-
-            
-            "yorumlar": [
-                {
-                "yorumYapan": "Abbas Abdelila Andya",
-                "yorumMetni": "Harika",
-                "tarih": "20 Ekim 2022",
-                "puan": "4"
-                },
-
-                {
-                    "yorumYapan": "Naval Ravikant",
-                    "yorumMetni": "Starbucks might be cool but not as having leverage",
-                    "tarih": "22 Ekim 2022",
-                    "puan": "3"
-                },    
-                
-                {
-                    "yorumYapan": "Jason Calacanis",
-                    "yorumMetni": "Best podcast host",
-                    "tarih": "22 Ekim 2022",
-                    "puan": "4"
-                },
-                
-            ]
-
+const anaSayfa=function(req,res,next){
+    axios.get(apiSecenekleri.sunucu+apiSecenekleri.apiYolu,{
+        params:{
+            enlem:req.query.enlem,
+            boylam:req.query.boylam
         }
+    }).then(function(response){ 
+        var i,mekanlar;
+        mekanlar=response.data; 
+        for(i=0;i<mekanlar.length;i++){
+            mekanlar[i].mesafe=mesafeyiFormatla(mekanlar[i].mesafe);
+        }
+        anaSayfaOlustur(res,mekanlar);
+    }).catch(function(hata){
+        anaSayfaOlustur(res,hata);
+    });
+}
+
+var detaySayfasiOlustur=function(res,mekanDetaylari){
+    mekanDetaylari.koordinat={
+        "enlem":mekanDetaylari.koordinat[0],
+        "boylam":mekanDetaylari.koordinat[1]
+    }
+    res.render('mekanbilgisi',
+    {
+        mekanBaslik:mekanDetaylari.ad,
+        mekanDetay:mekanDetaylari
+    });
+}
+ 
+var hataGoster = function(res,hata){
+    var mesaj;
+    if(hata.response.status==404){
+        mesaj="404, Sayfa Bulunamadı";
+    }else{
+        mesaj=hata.response.status+" hatası";
+    }
+    res.status(hata.response.status);
+    res.render('error',{
+    "mesaj":mesaj
     });
 };
 
-const yorumEkle = function (req, res, next) {
-    res.render('yorumekle', {title: 'Yorum Ekle'})
+const mekanBilgisi=function(req,res){
+   axios
+    .get(apiSecenekleri.sunucu+apiSecenekleri.apiYolu+req.params.mekanid)
+    .then(function(response){
+        req.session.mekanAdi=response.data.ad;
+        detaySayfasiOlustur(res,response.data);
+    })
+    .catch(function(hata){
+        hataGoster(res,hata);
+    });
+};
+
+const yorumEkle=function(req,res,next){
+    var mekanAdi=req.session.mekanAdi;
+    var mekanid=req.params.mekanid;
+    if (!mekanAdi) {
+        res.redirect("/mekan/"+mekanid);
+    }else
+
+    res.render('yorumekle',{baslik:mekanAdi + " mekanına yorum yap", title: 'Yorum Sayfası'});
+}
+const yorumumuEkle=function(req,res){
+   var gonderilenYorum,mekanid;
+   mekanid=req.params.mekanid;
+   if (!req.body.adsoyad || !req.body.yorum) {
+    res.redirect("/mekan/"+mekanid+"/yorum/yeni?hata=evet");
+   }else{
+    gonderilenYorum={
+        yorumYapan:req.body.adsoyad,
+        yorumMetni:req.body.yorum,
+        puan:req.body.puan
+    }
+    axios.post(apiSecenekleri.sunucu+apiSecenekleri.apiYolu+mekanid+"/yorumlar",
+    gonderilenYorum).then(function(){
+        res.redirect("/mekan/"+mekanid);
+    });
+   }
 }
 
-
-module.exports = {
+module.exports={
     anaSayfa,
     mekanBilgisi,
-    yorumEkle
+    yorumEkle,
+    yorumumuEkle
 }

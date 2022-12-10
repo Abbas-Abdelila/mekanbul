@@ -163,6 +163,8 @@ const mekanSil = function(req,res){
     }
 }
 
+
+
 module.exports = {
     mekanlariListele,
     mekanEkle,
